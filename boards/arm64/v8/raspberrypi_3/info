@@ -1,0 +1,4 @@
+BOARD_NAME="Raspberry Pi 3"
+
+SOC_ID=BCM2837
+SOC_MANUFACTURER=broadcom

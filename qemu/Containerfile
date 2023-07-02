@@ -1,0 +1,77 @@
+ARG REGISTRY=docker.io/
+ARG FEDORA_VERSION=38
+ARG QEMU_PREFIX_DIR=/tools
+ARG QEMU_SOURCE_DIR=/src
+
+FROM ${REGISTRY}fedora:${FEDORA_VERSION} as build
+
+ARG QEMU_GIT_REF
+ENV QEMU_GIT_REF=v8.0.2
+
+ARG QEMU_GIT_URL=https://gitlab.com/qemu-project/qemu.git
+
+ARG QEMU_PREFIX_DIR
+ARG QEMU_SOURCE_DIR
+
+WORKDIR $QEMU_SOURCE_DIR
+
+RUN set -eux; \
+    dnf install -y \
+      bison \
+      diffutils \
+      flex \
+      git \
+      gcc \
+      glib2-static \
+      glibc-static \
+      make \
+      ninja-build \
+      pixman-devel \
+      pcre-static \
+      python3-devel \
+      zlib-static \
+    ;
+
+RUN git clone \
+    --recurse-submodules \
+    --branch "$QEMU_GIT_REF" \
+    "$QEMU_GIT_URL" .
+
+RUN set -eux; \
+    ./configure \
+      --prefix="$QEMU_PREFIX_DIR" \
+      --enable-linux-user \
+      --disable-bsd-user \
+      --disable-debug-info \
+      --disable-docs \
+      --disable-gtk \
+      --disable-gnutls \
+      --disable-nettle \
+      --disable-gcrypt \
+      --disable-glusterfs \
+      --disable-libnfs \
+      --disable-libiscsi \
+      --disable-vnc \
+      --disable-kvm \
+      --disable-libssh \
+      --disable-vde \
+      --disable-sdl \
+      --disable-selinux \
+      --disable-system \
+      --disable-tools \
+      --disable-werror \
+      --static
+
+RUN set -eux; \
+    make -j$(nproc); \
+    make install; \
+    for f in "${QEMU_PREFIX_DIR:?}"/bin/*; do mv "$f" "${f}-static"; done
+
+
+FROM scratch
+
+ARG QEMU_PREFIX_DIR
+ARG QEMU_SOURCE_DIR
+
+COPY --from=build ${QEMU_PREFIX_DIR}/bin ${QEMU_PREFIX_DIR}/bin
+COPY --from=build ${QEMU_SOURCE_DIR}/scripts/qemu-binfmt-conf.sh ${QEMU_PREFIX_DIR}/bin

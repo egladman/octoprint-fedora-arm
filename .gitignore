@@ -1,0 +1,3 @@
+build
+*.raw.xz
+qemu/bin
