@@ -30,8 +30,8 @@ main() {
 
 	# TODO: make this not shit
 	if [[ "$f" == *"-unprivileged-"* ]]; then
-	    log::debug "Executing '$f' as user: admini"
-	    su - admini -c "$f"
+	    log::debug "Executing '$f' as user: octoprint"
+	    su octoprint -c "$f"
 	    continue
 	fi
 

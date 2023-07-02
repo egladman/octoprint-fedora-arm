@@ -4,7 +4,7 @@ set -o errexit -o pipefail
 
 main() {
     log::info "Pulling octoprint image."
-    podman pull docker.io/octoprint/octoprint:latest
+    podman pull docker.io/octoprint/octoprint:1.9.1
 
     log::info "Creating pod."
     podman pod create --name=octoprint

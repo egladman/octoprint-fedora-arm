@@ -1,0 +1,4 @@
+BOARD_NAME="generic v8"
+
+SOC_ID=none
+SOC_MANUFACTURER=none

@@ -19,7 +19,7 @@ hook::cleanup() {
 	mapfile -t mnt_paths < <(util::reverse_order "${__MOUNT_PATHS[@]}")
 	for p in "${mnt_paths[@]}"; do
 	    log::debug "Processing mount path: $p"
-	    util::umount "$p" || true
+	    dev::umount "$p" || true
 	done
     fi
 
@@ -32,38 +32,7 @@ hook::cleanup() {
     losetup --detach-all "$__LOOP_DEVICE" || true
 }
 
-util::mkdir() {
-    # Usage: util::mkdir dir...
-
-    log::debug "Called by '${FUNCNAME[1]}' with args: $*"    
-    for p in "$@"; do
-	if [[ -d "$p" ]]; then
-	    continue
-	fi
-
-	log::debug "Creating directory: ${p}"
-	mkdir -p "$p"
-    done
-}
-
-util::reverse_order() {
-    declare -a wrkarr
-    for i in "$@"; do
-	wrkarr=("$i" "${wrkarr[@]}")
-    done
-
-    printf '%s\n' "${wrkarr[@]}"
-}
-
-util::is_mounted() {
-    local mnt_path
-    mnt_path="${1:?}"
-
-    log::debug "Checking if a device is mounted at path: $mnt_path"
-    mountpoint -q "$mnt_path"
-}
-
-util::mount() {
+dev::mount() {
     local device mnt_path
     device="${1:?}"
     mnt_path="${2:?}"
@@ -79,7 +48,7 @@ util::mount() {
     }
 }
 
-util::umount() {
+dev::umount() {
     local mnt_path
     mnt_path="${1:?}"
 
@@ -89,7 +58,7 @@ util::umount() {
     umount "$mnt_path"
 }
 
-util::find_loop() {
+dev::find_loop() {
     local image_path="${1:?}"
 
     # It's gross but we're redirecting all logs to stderr for we don't interfer with subshell behavior
@@ -169,7 +138,7 @@ rootfs::mount_image() {
     rootfs_path="${2:?}"
 
     # We only expect a single device, so we can keep this logic simple for now
-    loop_device="$(util::find_loop "$image_path")"
+    loop_device="$(dev::find_loop "$image_path")"
 
     log::info "Assigned loop device: $loop_device"
     # The loop device has 3 partitions. The primary rootfs in on partition 3.
@@ -206,17 +175,25 @@ rootfs::mount_image() {
     # /dev/fedora_sbc/root is the logical volume path. Run `lvdisplay` for context. The
     # path is derived from the volume group name (i.e, fedora_sbc)
     log::info "Mounting root partition to path: $rootfs_path"
-    util::mount "/dev/${__VOLUME_GROUP}/root" "${rootfs_path}"
+    dev::mount "/dev/${__VOLUME_GROUP}/root" "${rootfs_path}"
 
     log::info "Mounting boot partition to path: ${rootfs_path}/boot"
-    util::mount "${loop_device}p2" "${rootfs_path}/boot"
+    dev::mount "${loop_device}p2" "${rootfs_path}/boot"
 }
 
 rootfs::nspawn() {
     local rootfs_path="${1:?}"
 
     log::info "Entering rootfs: $rootfs_path"
-    systemd-nspawn --resolv-conf=copy-host --directory "$rootfs_path" /tools/entrypoint.sh
+
+    declare -a opts=(
+	--chdir=/tools
+	--resolv-conf=copy-host
+	--directory "$rootfs_path"
+    )
+
+    log::debug "Passing the following options to nspawn: ${opts[*]}"   
+    systemd-nspawn "${opts[@]}" /tools/entrypoint.sh
 }
 
 rootfs::compress() {
@@ -224,8 +201,17 @@ rootfs::compress() {
 
     hook::cleanup
 
-    # TODO: Use builtin
-    dest_path="$(basename "$image_path" .raw.xz).octoprint.raw.xz"
+    local str suffix
+    suffix=".aarch64.raw.xz"
+    str="${image_path%%$suffix}"   
+    mapfile -t wrkarr < <(util::split "$str" "-")
+    # 0  name
+    # 1  variant
+    # 2  major version
+    # 3  revision
+
+    # Final image name
+    dest_path="Octoprint-${wrkarr[0]}-${wrkarr[2]}-${wrkarr[3]}${suffix}"
 
     log::info "Compressing image '$image_path' to '$dest_path'."
     xz -stdout -9 "$image_path" > "$dest_path"
@@ -259,15 +245,15 @@ main() {
 	shift
     done
 
-    log::info "board: ${BOARD_NAME:?}"
-    log::info "soc: ${SOC_ID:?}"
+    log::info "Board: ${BOARD_NAME:?}"
+    log::info "SoC: ${SOC_ID:?}"
 
-    __VOLUME_GROUP=fedora_sbc
+    __VOLUME_GROUP=fedora-server
     
     local rootfs_path artifact_path
     artifact_path="${1:?}"            # .raw.xz compressed rootfs sourced from fedoraproject.org
-    image_path=../build/disk.raw
-    rootfs_path=../build/rootfs       # uncompressed rootfs
+    image_path=../build/fedora.raw    # uncompressed rootfs image
+    rootfs_path=../build/rootfs       # mounted rootfs
     
     # Uncompress fedora artifact 
     rootfs::uncompress_image "$artifact_path" "$image_path"

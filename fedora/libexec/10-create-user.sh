@@ -3,7 +3,7 @@
 set -o errexit -o pipefail
 
 main() {
-    local username="admini"
+    local username="octoprint"
 
     log::info "Checking if user '${username}' exists."
     id "$username" && {

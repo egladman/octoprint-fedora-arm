@@ -7,6 +7,6 @@
 # After editing this file, run 'systemctl daemon-reload' to update systemd
 # units generated from this file.
 #
-/dev/mapper/fedora_sbc-root /                       xfs     defaults,ro        0 0
+/dev/mapper/fedora-server-root /                       xfs     defaults,ro        0 0
 UUID=f9ef8131-4212-4194-bbcb-3f04626f34a4 /boot                   xfs     defaults        0 0
 UUID=6E0C-FE6D          /boot/efi               vfat    umask=0077,shortname=winnt 0 2
