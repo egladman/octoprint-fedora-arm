@@ -1,4 +1,4 @@
-# octoprint-fedora-sbc
+# octoprint-fedora-arm
 
 Octoprint for ARM single board computers. A Fedora-based alternative to [OctoPi](https://github.com/guysoft/OctoPi) with the following enchancments:
 
