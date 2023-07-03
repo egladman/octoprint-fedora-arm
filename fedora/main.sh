@@ -189,7 +189,7 @@ rootfs::nspawn() {
     declare -a opts=(
 	--chdir=/tools
 	--resolv-conf=copy-host
-	--directory "$rootfs_path"
+	--directory="$rootfs_path"
     )
 
     log::debug "Passing the following options to nspawn: ${opts[*]}"   
@@ -205,8 +205,8 @@ rootfs::compress() {
     suffix=".aarch64.raw.xz"
     str="${image_path%%$suffix}"   
     mapfile -t wrkarr < <(util::split "$str" "-")
-    # 0  name
-    # 1  variant
+    # 0  distro name
+    # 1  distro variant
     # 2  major version
     # 3  revision
 
@@ -234,19 +234,26 @@ main() {
         exec sudo -p "${0##*/} must be run as root. Please enter the password for %u to continue: " -- "$0" "$@"
     fi
 
+    util::mkdir ../build/vars
+    
     while [[ $# -gt 1 ]]; do
 	case "$1" in
-	    --extra-vars)
+	    --extra-env)
 		# shellcheck disable=SC1090
 		source "${2:?}"
-		shift
+		;;
+	    --cpu-variant)
+		printf '%s\n' "${2:?}" > ../build/vars/${1##--}
+		;;
+	    --cpu-arch)
+		printf '%s\n' "${2:?}" > ../build/vars/${1##--}
+		;;
+	    --qemu-path)
+		printf '%s\n' "${2:?}" > ../build/vars/${1##--}
 		;;
 	esac
-	shift
+	shift 2
     done
-
-    log::info "Board: ${BOARD_NAME:?}"
-    log::info "SoC: ${SOC_ID:?}"
 
     __VOLUME_GROUP=fedora-server
     

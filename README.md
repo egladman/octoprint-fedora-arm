@@ -5,6 +5,10 @@ Octoprint for ARM single board computers. A Fedora-based alternative to [OctoPi]
 - Read-only filesystem
 - Container-based
 
+## Considerations
+
+In an effort to reduce the overall image size, the image does not include the octoprint container image. On first boot it will be pulled.
+
 ## Build
 
 1. Download the corresponding raw aarch64 image from [fedoraproject.org](https://fedoraproject.org/server/download/) and save it to the working directory
@@ -31,6 +35,13 @@ arm-image-installer --media=/dev/XXX --resizefs --target=none --image=Octoprint-
 
 ## Development
 
+Dependencies:
+
+- `systemd-nspawn`
+- `qemu`
+- `make`
+- `bash`
+
 ### QEMU
 
 ```
@@ -42,8 +53,8 @@ sudo make setup-binfmt
 
 1. What's the default username/password for the unprivileged user?
 
-- Username: `octoprint`
-- Password: `octoprint`
+- Username: `octo`
+- Password: `octo`
 
 2. I can't delete `build`, it says its busy
 
@@ -58,4 +69,21 @@ sudo losetup -D build/disk.raw
 
 ```
 sudo rm -irf build
+```
+
+4. Something is messed up, how do I blow away the existing container?
+
+Delete the lockfile, then on next boot the container will reinitialize
+
+```
+rm -if /home/octo/octoprint/.lockfile
+```
+
+5. I want to reset everything, how can I do that?
+
+
+Delete the entire octoprint directory. On next boot everything will be cleared.
+
+```
+rm -irf /home/octo/octoprint
 ```
