@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-DEBUG=1
-
 set -o errexit -o pipefail
 
 trap hook::cleanup ERR EXIT SIGINT
@@ -214,7 +212,7 @@ rootfs::compress() {
     dest_path="Octoprint-${wrkarr[0]}-${wrkarr[2]}-${wrkarr[3]}${suffix}"
 
     log::info "Compressing image '$image_path' to '$dest_path'."
-    xz -stdout -9 "$image_path" > "$dest_path"
+    xz --stdout -9 "$image_path" > "$dest_path"
 }
 
 init() {

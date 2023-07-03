@@ -30,7 +30,7 @@ Dependencies:
 - `arm-image-installer` [link](https://packages.fedoraproject.org/pkgs/arm-image-installer/arm-image-installer/)
 
 ```
-arm-image-installer --media=/dev/XXX --resizefs --target=none --image=Octoprint-38-1.6.aarch64.raw.xz
+arm-image-installer --media=/dev/XXX --resizefs --target=none --image=Octoprint-Fedora-38-1.6.aarch64.raw.xz
 ```
 
 ## Development
@@ -61,7 +61,7 @@ sudo make setup-binfmt
 ```
 sudo umount build/rootfs/boot
 sudo umount build/rootfs
-sudo vgchange -an fedora-server`
+sudo vgchange -an fedora-server
 sudo losetup -D build/disk.raw
 ```
 
