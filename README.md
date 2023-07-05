@@ -6,7 +6,7 @@ A purpose-built Octoprint ARM image with an emphasis on stability, and ease of u
 
 - Read-only filesystem
 - Container-based
-- Auto-updates
+- Application auto-updates
 - Device Autodiscovery
   - On boot all relevant [character devices](https://en.wikipedia.org/wiki/Device_file) (i.e, serial ports, cameras) will be made accessible to Octoprint
 
