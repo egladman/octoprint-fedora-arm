@@ -1,13 +1,18 @@
 # octoprint-fedora-arm
 
-Octoprint for ARM single board computers. A Fedora-based alternative to [OctoPi](https://github.com/guysoft/OctoPi) with the following enchancments:
+A purpose-built Octoprint ARM image with an emphasis on stability, and ease of use. This project was inspired by [OctoPi](https://github.com/guysoft/OctoPi).
+
+## Features
 
 - Read-only filesystem
 - Container-based
+- Auto-updates
+- Device Autodiscovery
+  - On boot all relevant [character devices](https://en.wikipedia.org/wiki/Device_file) (i.e, serial ports, cameras) will be made accessible to Octoprint
 
 ## Considerations
 
-In an effort to reduce the overall image size, the image does not include the octoprint container image. On first boot it will be pulled.
+In an effort to reduce the overall image size, the container image is not include shipped image. On first boot it's downloaded.
 
 ## Build
 
@@ -21,16 +26,32 @@ In an effort to reduce the overall image size, the image does not include the oc
 make boards/arm64/v8/generic
 ```
 
-*Note:* The image will be placed in the working directory.
+*Note:* The image will be placed in `build/dist`
 
 ## Install
 
-Dependencies:
+### xzcat
+```
+xzcat Octoprint-Fedora-38-1.6.aarch64.raw.xz| dd of=/dev/XXX oflag=direct bs=4M status=progress && sync
+```
 
-- `arm-image-installer` [link](https://packages.fedoraproject.org/pkgs/arm-image-installer/arm-image-installer/)
-
+### [arm-image-installer](https://packages.fedoraproject.org/pkgs/arm-image-installer/arm-image-installer/)
 ```
 arm-image-installer --media=/dev/XXX --resizefs --target=none --image=Octoprint-Fedora-38-1.6.aarch64.raw.xz
+```
+
+## Post Install
+
+1. SSH into the machine
+
+```
+ssh octo@octoprint
+```
+
+2. Change the default password for user `octo`
+
+```
+passwd octo
 ```
 
 ## Development
@@ -49,6 +70,18 @@ make setup-qemu
 sudo make setup-binfmt
 ```
 
+### Debugging
+
+#### Raspberry Pi
+
+If the device fails to start then attach a serial cable and watch the logs
+
+```
+screen /dev/ttyUSB0 115200
+```
+
+To exit `screen`, type `Control-A k`.
+
 # Commonly Asked Questions
 
 1. What's the default username/password for the unprivileged user?
@@ -60,9 +93,10 @@ sudo make setup-binfmt
 
 ```
 sudo umount build/rootfs/boot
+sudo umount build/firmware
 sudo umount build/rootfs
-sudo vgchange -an fedora-server
-sudo losetup -D build/disk.raw
+sudo vgchange -an fedora
+sudo losetup -D build/fedora.raw
 ```
 
 3. I can't delete `build`, it says permission denied

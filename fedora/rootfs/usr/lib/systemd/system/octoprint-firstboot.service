@@ -1,9 +1,0 @@
-[Unit]
-Description=Initalize octoprint container
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/octoprint-bootstrap
-
-[Install]
-WantedBy=multi-user.target

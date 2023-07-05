@@ -4,7 +4,7 @@ log::_println() {
 	"[${1:: 4}]"
     )
 
-    if [[ $DEBUG -eq 1 ]]; then
+    if [[ $ENABLE_DEBUG -eq 1 ]]; then
 	local current_file current_time
 	current_file="[${0##*/}]"
 	current_time="[$(date +"%Y-%m-%dT%H:%M:%S%:z")]"

@@ -5,7 +5,7 @@ set -o errexit -o pipefail
 init() {
     # Usage: init
     for f in ./lib/*.sh; do
-	if [[ $DEBUG -eq 1 ]]; then
+	if [[ $ENABLE_DEBUG -eq 1 ]]; then
 	   printf '%s\n' "Loading library: $f"
 	fi
 	# shellcheck disable=SC1090

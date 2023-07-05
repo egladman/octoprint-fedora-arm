@@ -13,7 +13,7 @@ hook::cleanup() {
     log::info "Cleaning up."
     
     # Unmount paths in the reverse order that they were mounted
-    if [[ $# -gt 0 ]]; then
+    if [[ ${#__MOUNT_PATHS[@]} -gt 0 ]]; then
 	mapfile -t mnt_paths < <(util::reverse_order "${__MOUNT_PATHS[@]}")
 	for p in "${mnt_paths[@]}"; do
 	    log::debug "Processing mount path: $p"
@@ -113,6 +113,7 @@ rootfs::copy_tools() {
     cp -rf libexec "$tools_path"
     cp -rf lib "$tools_path"
     cp -rf rootfs "$tools_path"
+    cp -rf ../build/vars "$tools_path"
 }
 
 #  Workaround. I had dns issues when using
@@ -147,7 +148,7 @@ rootfs::mount_image() {
 
     # TODO: Do not hardcode the default volume group 'fedora'. I don't expect this
     # to ever change upstream, but just in case.
-    local rename_vg=1
+    local rename_vg=0
     vgdisplay fedora || rename_vg=0
     if [[ $rename_vg -eq 1 ]]; then
 	# Volume Group UUID. Not be confused with a system's block device IDs (i.e, blkid).
@@ -175,6 +176,9 @@ rootfs::mount_image() {
     log::info "Mounting root partition to path: $rootfs_path"
     dev::mount "/dev/${__VOLUME_GROUP}/root" "${rootfs_path}"
 
+    log::info "Mounting firmware partition to path: ${rootfs_path}/firmware"
+    dev::mount "${loop_device}p1" "${rootfs_path}/firmware"
+
     log::info "Mounting boot partition to path: ${rootfs_path}/boot"
     dev::mount "${loop_device}p2" "${rootfs_path}/boot"
 }
@@ -190,34 +194,40 @@ rootfs::nspawn() {
 	--directory="$rootfs_path"
     )
 
-    log::debug "Passing the following options to nspawn: ${opts[*]}"   
+    # Any environment variable with the following prefixes will be
+    # shared with the systemd-nspawn container
+    declare -a shared_envs
+    eval 'shared_envs+=(${!'ENABLE_'@})'
+    eval 'shared_envs+=(${!'DISABLE_'@})'
+
+    for e in "${shared_envs[@]}"; do
+	opts+=(--setenv="$e")
+    done
+
+    log::debug "Passing the following options to nspawn: ${opts[*]}"
     systemd-nspawn "${opts[@]}" /tools/entrypoint.sh
 }
 
 rootfs::compress() {
-    local image_path="${1:?}"
+    local image_path dest_path
+    image_path="${1:?}"
+    dest_path="${2:?}"
 
     hook::cleanup
 
-    local str suffix
-    suffix=".aarch64.raw.xz"
-    str="${image_path%%$suffix}"   
-    mapfile -t wrkarr < <(util::split "$str" "-")
-    # 0  distro name
-    # 1  distro variant
-    # 2  major version
-    # 3  revision
-
-    # Final image name
-    dest_path="Octoprint-${wrkarr[0]}-${wrkarr[2]}-${wrkarr[3]}${suffix}"
-
     log::info "Compressing image '$image_path' to '$dest_path'."
-    xz --stdout -9 "$image_path" > "$dest_path"
+
+    local compression_level=1
+    if [[ $ENABLE_RELEASE -eq 1 ]]; then
+	compression_level=6
+    fi
+
+    xz --stdout -${compression_level} "$image_path" > "$dest_path"
 }
 
 init() {
     # Usage: init
-    for f in ./lib/*.sh; do
+   for f in ./lib/*.sh; do
 	if [[ $DEBUG -eq 1 ]]; then
 	    printf '%s\n' "Loading library: $f"
 	fi
@@ -232,8 +242,9 @@ main() {
         exec sudo -p "${0##*/} must be run as root. Please enter the password for %u to continue: " -- "$0" "$@"
     fi
 
-    util::mkdir ../build/vars
-    
+    local build_dir="../build"
+    util::mkdir "${build_dir}/vars"
+
     while [[ $# -gt 1 ]]; do
 	case "$1" in
 	    --extra-env)
@@ -252,31 +263,61 @@ main() {
 	esac
 	shift 2
     done
+    
+    local image rootfs_dir fedora_artifact fedora_artifact_name
+    fedora_artifact="${1:?}"                      # .raw.xz compressed rootfs sourced from fedoraproject.org
+    fedora_artifact_name="${fedora_artifact##*/}" # basename
+    image="${build_dir}/fedora.raw"               # uncompressed rootfs image
+    rootfs_dir="${build_dir}/rootfs"              # mounted rootfs path
 
-    __VOLUME_GROUP=fedora-server
+    # Derive the final compressed image name from the og
+    local base suffix
+    suffix=".aarch64.raw.xz"
+    base="${fedora_artifact_name%%"$suffix"}"
+
+    declare -a wrkarr
+    wrkarr=($(util::split "$base" "-"))
+
+    local distro_name distro_variant distro_version
+    distro_name="${wrkarr[0]}"
+    distro_variant="${wrkarr[1]}"
+    distro_version="${wrkarr[2]}-${wrkarr[3]}"
     
-    local rootfs_path artifact_path
-    artifact_path="${1:?}"            # .raw.xz compressed rootfs sourced from fedoraproject.org
-    image_path=../build/fedora.raw    # uncompressed rootfs image
-    rootfs_path=../build/rootfs       # mounted rootfs
-    
+    case "${distro_variant,,}" in
+	server)
+	    true
+	    ;;
+	*)
+	    log::warn "Unable to identify distro variant. This might not work as expected."
+	    distro_variant=unknown
+	    ;;
+    esac
+
+    local octoprint_artifact
+    util::mkdir "${build_dir}/dist"
+    octoprint_artifact="${build_dir}/dist/Octoprint-${distro_name:?}-${distro_version:?}${suffix}"
+
+    __VOLUME_GROUP="${distro_name,,}"
+    #__VOLUME_GROUP="fedora-${fedora_variant}"
+    printf '%s\n' "$__VOLUME_GROUP" > ../build/vars/volume-group-name
+
     # Uncompress fedora artifact 
-    rootfs::uncompress_image "$artifact_path" "$image_path"
+    rootfs::uncompress_image "$fedora_artifact" "$image"
 
     # Create loop devices and mount rootfs
-    rootfs::mount_image "$image_path" "$rootfs_path"
+    rootfs::mount_image "$image" "$rootfs_dir"
 
     # Copy source code
-    rootfs::copy_tools "$rootfs_path"
+    rootfs::copy_tools "$rootfs_dir"
 
     # Setup networking
-    rootfs::copy_resolvconf "$rootfs_path"
+    rootfs::copy_resolvconf "$rootfs_dir"
 
     # Change root
-    rootfs::nspawn "$rootfs_path"
+    rootfs::nspawn "$rootfs_dir"
 
     # Compress final image
-    rootfs::compress "$image_path"
+    rootfs::compress "$image" "$octoprint_artifact"
 }
 
 init

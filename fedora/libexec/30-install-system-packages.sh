@@ -3,10 +3,18 @@
 set -o errexit -o pipefail
 
 main() {
-    dnf --assumeyes install \
+
+    declare -a dnf_opts=(
+	--setopt=install_weak_deps=False
+	--assumeyes
+    )
+
+    dnf install "${dnf_opts[@]}" \
+        firewalld \
 	podman \
+	openssh-server \
 	readonly-root \
-	openssh-server
+	vim-minimal
 }
 
 init

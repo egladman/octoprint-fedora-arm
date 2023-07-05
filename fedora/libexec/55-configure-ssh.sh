@@ -3,14 +3,23 @@
 set -o errexit -o pipefail
 
 main() {
-    log::info "Enabling ssh daemon systemd service"
+    declare -A ssh_rules=(
+	["LoginGraceTime"]="20"
+	["MaxAuthTries"]="3"
+	# ["PasswordAuthentication"]="no"
+	["PermitRootLogin"]="no"
+	["PermitEmptyPasswords"]="no"
+    )
 
-    local unit_name unit_path
-    unit_name="sshd.service"
-    unit_path="/usr/lib/systemd/system/${unit_name}"
+    log::info "Hardening sshd config: /etc/ssh/sshd_config"
+    local regex
+    for rule in "${!ssh_rules[@]}"; do
+	regex="s/#\?\(${rule}\s*\).*$/\1 ${rules[${rule}]}/"
+	sed -i "$regex" /etc/ssh/sshd_config
+    done
 
-    # Enable without directly calling `systemctl`
-    ln -sf "$unit_path" "/etc/systemd/system/multi-user.target.wants/${unit_name}"
+    log::info "Enabling systemd service: sshd"
+    systemd::enable_service sshd
 }
 
 init

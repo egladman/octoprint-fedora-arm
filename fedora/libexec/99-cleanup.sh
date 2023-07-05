@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 main() {
+    # It's important that we're only removing files. See 95-configure-selinux.sh
+
     dnf clean all
-    
     rm -rf /tools || :
-    util::umount /proc/cpuinfo
 }
 
 main "$@"
