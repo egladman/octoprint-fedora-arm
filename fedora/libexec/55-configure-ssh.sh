@@ -19,7 +19,7 @@ main() {
     done
 
     log::info "Enabling systemd service: sshd"
-    systemd::enable_service sshd
+    systemctl --root=/ enable sshd
 }
 
 init

@@ -176,8 +176,16 @@ rootfs::mount_image() {
     log::info "Mounting root partition to path: $rootfs_path"
     dev::mount "/dev/${__VOLUME_GROUP}/root" "${rootfs_path}"
 
+    # FIXME: Don't hardcode labels. These should match /etc/fstab
+    log::info "Assigning ${loop_device}p1 label: FedoraEFI0"
+    dosfslabel "${loop_device}p1" FedoraEFI0
+
     log::info "Mounting firmware partition to path: ${rootfs_path}/firmware"
     dev::mount "${loop_device}p1" "${rootfs_path}/firmware"
+
+    # FIXME: Don't hardcode labels. These should match /etc/fstab
+    log::info "Assigning ${loop_device}p2 label: FedoraBoot0"
+    xfs_admin -L FedoraBoot0 "${loop_device}p2"
 
     log::info "Mounting boot partition to path: ${rootfs_path}/boot"
     dev::mount "${loop_device}p2" "${rootfs_path}/boot"

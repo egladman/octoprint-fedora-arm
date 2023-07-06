@@ -121,3 +121,12 @@ Delete the entire octoprint directory. On next boot everything will be cleared.
 ```
 rm -irf /home/octo/octoprint
 ```
+
+6. How do a run a command as `root` if a password isn't set for it?
+
+While logged in as `octo` run:
+
+```
+sudo su -
+whoami
+```
