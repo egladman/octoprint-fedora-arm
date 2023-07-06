@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+rootfs::is_readonly() {
+    declare -a chunks
+    while read -r line; do
+	# shellcheck disable=SC2206
+	chunks=($line)
+	# shellcheck disable=SC2154
+	if [[ "${chunk[0]}" != "/" ]]; then
+	    continue
+	fi
+	
+	if [[ " ${chunks[*]} " =~ (,)?ro(,)? ]]; then
+	    return 0
+	fi
+
+	return 1
+    done < /proc/mounts
+}
+
+rootfs::remount() {
+    mount -o "${1:?},remount" /
+}
+
+main() {    
+    case "$1" in
+	""|enable)
+	    rootfs::is_readonly || rootfs::remount ro
+	    ;;     
+	disable)
+	    rootfs::is_readonly && rootfs::remount rw
+	    ;;
+	*)
+	    exit 1
+	    ;;
+    esac
+
+    local state="writable"
+    if rootfs::is_readonly; then
+	state="readonly"
+    fi
+
+    printf '%s\n' "Rootfs is $state"
+}
+
+main "$@"
