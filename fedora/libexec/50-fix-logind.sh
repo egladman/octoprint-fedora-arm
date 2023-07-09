@@ -3,7 +3,9 @@
 set -o errexit -o pipefail
 
 main() {
-    mkdir -m 755 -p /usr/lib/systemd/systemd-logind || :
+    if [[ ! -f /usr/lib/systemd/systemd-logind ]]; then
+	touch /usr/lib/systemd/systemd-logind
+    fi
 }
 
 init

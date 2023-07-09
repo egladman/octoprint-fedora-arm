@@ -1,4 +1,4 @@
 dirs /home
 dirs /root
 
-empty /usr/lib/systemd/systemd-logind
+files /usr/lib/systemd/systemd-logind
