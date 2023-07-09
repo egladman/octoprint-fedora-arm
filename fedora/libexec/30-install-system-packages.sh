@@ -18,7 +18,6 @@ main() {
 	iputils
 	podman
 	openssh-server
-	skopeo
 	vim-minimal
     )
 

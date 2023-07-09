@@ -13,7 +13,6 @@ main() {
     )
 
     declare -a packages=(
-	skopeo
 	zram-generator
     )
 
