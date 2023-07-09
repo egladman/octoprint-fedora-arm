@@ -13,6 +13,15 @@ main() {
     )
 
     declare -a packages=(
+	'anaconda*'
+	bubblewrap
+	cockpit
+	diffutils
+	dnf
+	dos2unix
+	fedora-logos
+	nvidia-gpu-firmware
+	os-prober
 	zram-generator
     )
 
