@@ -3,6 +3,10 @@
 set -o errexit -o pipefail
 
 main() {
+    if [[ ! -f /var/lib/.ssh-host-keys-migration ]]; then
+	touch /var/lib/.ssh-host-keys-migration
+    fi
+
     declare -A ssh_rules=(
 	["LoginGraceTime"]="20"
 	["MaxAuthTries"]="3"
@@ -10,7 +14,7 @@ main() {
 	["PermitRootLogin"]="no"
 	["PermitEmptyPasswords"]="no"
     )
-
+    
     log::info "Hardening sshd config: /etc/ssh/sshd_config"
     local regex
     for rule in "${!ssh_rules[@]}"; do
