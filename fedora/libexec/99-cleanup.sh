@@ -5,6 +5,8 @@ main() {
 
     dnf clean all
     rm -rf /tools || :
+    rm -rf /firmware || :
+    rm -rf /tmp/* || :
 }
 
 main "$@"

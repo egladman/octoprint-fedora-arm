@@ -14,7 +14,7 @@ main() {
     log::info "Hardening sshd config: /etc/ssh/sshd_config"
     local regex
     for rule in "${!ssh_rules[@]}"; do
-	regex="s/#\?\(${rule}\s*\).*$/\1 ${rules[${rule}]}/"
+	regex="s/#\?\(${rule}\s*\).*$/\1 ${ssh_rules[${rule}]}/"
 	sed -i "$regex" /etc/ssh/sshd_config
     done
 

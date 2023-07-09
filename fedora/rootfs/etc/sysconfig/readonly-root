@@ -10,7 +10,8 @@ RW_MOUNT=/var/lib/stateless/writable
 # Label on local filesystem which can be used for temporary scratch space
 RW_LABEL=stateless-rw
 # Options to use for temporary mount
-RW_OPTIONS=
+# Default tmpfs size is 50% https://man7.org/linux/man-pages/man5/tmpfs.5.html
+RW_OPTIONS='-o size=85%'
 # Label for partition with persistent data
 STATE_LABEL=stateless-state
 # Where to mount to the persistent data

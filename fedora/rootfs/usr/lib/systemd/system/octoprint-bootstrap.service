@@ -1,0 +1,14 @@
+[Unit]
+Description=Initalize Octoprint
+After=network-online.target
+Requires=network-online.target
+ConditionPathExists=!/var/lib/octoprint/.lockfile
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/octoprint-bootstrap
+ExecStartPost=/usr/bin/touch /var/lib/octoprint/.lockfile
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -3,7 +3,8 @@ SHELL = bash -o errexit -o pipefail
 export ENABLE_ROOT ?= 1
 export ENABLE_RELEASE ?= 0
 export ENABLE_DEBUG ?= 1
-export ENABLE_SELINUX ?= 0
+export ENABLE_AUTOUPDATES ?= 0
+export ENABLE_SELINUX ?= 1
 
 QEMU_DIR ?= $(abspath qemu)
 BUILD_DIR ?= $(abspath build)

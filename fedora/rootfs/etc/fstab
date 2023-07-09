@@ -8,5 +8,5 @@
 # units generated from this file.
 #
 /dev/mapper/fedora-root /                       xfs     ro        0 0
-LABEL=FedoraBoot0 /boot                   xfs     defaults        0 0
-LABEL=FedoraEFI0          /boot/efi               vfat    umask=0077,shortname=winnt 0 2
+LABEL=FedoraBoot /boot                   xfs     defaults        0 0
+LABEL=FedoraEFI          /boot/efi               vfat    umask=0077,shortname=winnt 0 2

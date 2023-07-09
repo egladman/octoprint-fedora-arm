@@ -13,6 +13,7 @@ main() {
         firewalld \
 	podman \
 	openssh-server \
+	skopeo \
 	readonly-root \
 	vim-minimal
 }

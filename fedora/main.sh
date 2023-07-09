@@ -177,15 +177,15 @@ rootfs::mount_image() {
     dev::mount "/dev/${__VOLUME_GROUP}/root" "${rootfs_path}"
 
     # FIXME: Don't hardcode labels. These should match /etc/fstab
-    log::info "Assigning ${loop_device}p1 label: FedoraEFI0"
-    dosfslabel "${loop_device}p1" FedoraEFI0
+    log::info "Assigning ${loop_device}p1 label: FedoraEFI"
+    dosfslabel "${loop_device}p1" FedoraEFI
 
     log::info "Mounting firmware partition to path: ${rootfs_path}/firmware"
     dev::mount "${loop_device}p1" "${rootfs_path}/firmware"
 
     # FIXME: Don't hardcode labels. These should match /etc/fstab
-    log::info "Assigning ${loop_device}p2 label: FedoraBoot0"
-    xfs_admin -L FedoraBoot0 "${loop_device}p2"
+    log::info "Assigning ${loop_device}p2 label: FedoraBoot"
+    xfs_admin -L FedoraBoot "${loop_device}p2"
 
     log::info "Mounting boot partition to path: ${rootfs_path}/boot"
     dev::mount "${loop_device}p2" "${rootfs_path}/boot"
@@ -200,6 +200,7 @@ rootfs::nspawn() {
 	--chdir=/tools
 	--resolv-conf=copy-host
 	--directory="$rootfs_path"
+	--capability=all
     )
 
     # Any environment variable with the following prefixes will be
@@ -212,7 +213,11 @@ rootfs::nspawn() {
 	opts+=(--setenv="$e")
     done
 
-    log::debug "Passing the following options to nspawn: ${opts[*]}"
+    log::debug "Passing the following options to systemd-nspawn: ${opts[*]}"
+
+    # Disable secomp filtering. Otherwise podman won't function inside the container
+    SYSTEMD_SECCOMP=0 \
+    SYSTEMD_LOG_LEVEL=debug \
     systemd-nspawn "${opts[@]}" /tools/entrypoint.sh
 }
 
@@ -227,7 +232,7 @@ rootfs::compress() {
 
     local compression_level=1
     if [[ $ENABLE_RELEASE -eq 1 ]]; then
-	compression_level=6
+	compression_level=7
     fi
 
     xz --stdout -${compression_level} "$image_path" > "$dest_path"
