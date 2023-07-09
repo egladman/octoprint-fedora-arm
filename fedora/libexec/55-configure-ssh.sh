@@ -3,6 +3,8 @@
 set -o errexit -o pipefail
 
 main() {
+    ssh-keygen -A
+
     if [[ ! -f /var/lib/.ssh-host-keys-migration ]]; then
 	touch /var/lib/.ssh-host-keys-migration
     fi
