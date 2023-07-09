@@ -21,6 +21,23 @@ found_devices() {
     printf '%s\n' "$@"
 }
 
+
+is_readonly() {
+    declare -a chunks
+    while read -r line; do
+	# shellcheck disable=SC2206
+	chunks=($line)
+	# shellcheck disable=SC2154
+	if [[ "${chunk[0]}" != "/" ]]; then
+	   continue
+	fi
+
+	if [[ " ${chunks[*]} " =~ (,)?ro(,)? ]]; then
+	   return 0
+	fi
+    done < /proc/mounts
+}
+
 init() {
     for p in "$OCTOPRINT_DATA"; do
 	if [[ ! -d "$p" ]]; then
@@ -66,9 +83,11 @@ main() {
 	--name="$pod_container"
 	--volume="${OCTOPRINT_DATA}:/octoprint"
 	--env ENABLE_MJPG_STREAMER=true
-	--pull=never
+	--pull=missing
 	--replace
     )
+
+    is_readonly && podman_create_opts+=(--storage-opt "overlay.mount_program=/usr/bin/fuse-overlayfs")
 
     for d in $(found_devices); do
 	podman_create_opts+=(--device="$d")
