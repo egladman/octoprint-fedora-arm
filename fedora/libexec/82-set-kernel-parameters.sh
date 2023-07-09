@@ -32,6 +32,7 @@ main() {
     fi
 
     if [[ $ENABLE_DEBUG -eq 1 ]]; then
+	kernel::add_parameter "systemd.unit=rescue.target"
 	kernel::add_parameter "systemd.log_level=debug"
 	kernel::add_parameter "systemd.log_target=console"
     fi
