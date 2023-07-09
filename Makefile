@@ -6,6 +6,7 @@ export ENABLE_RELEASE ?= 0
 export ENABLE_DEBUG ?= 1
 export ENABLE_AUTOUPDATES ?= 0
 export ENABLE_SELINUX ?= 0
+export ENABLE_RESCUE ?= 0
 
 QEMU_DIR ?= $(abspath qemu)
 BUILD_DIR ?= $(abspath build)

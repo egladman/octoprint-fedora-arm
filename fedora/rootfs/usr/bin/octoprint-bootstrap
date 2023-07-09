@@ -28,6 +28,16 @@ init() {
 	    mkdir -m 777 -p "$p"
 	fi
     done
+
+    # FIXME: This is a workaround. The policy.json doesn't exist and i'm not sure why.
+    if [[ ! -f /etc/containers/policy.json ]]; then
+	printf '%s\n' "Generating container policy. Path does not exist: /etc/containers/policy.json"
+	cat << EOF > /etc/containers/policy.json
+{
+    "default": [{"type": "insecureAcceptAnything"}]
+}
+EOF
+    fi
 }
 
 main() {

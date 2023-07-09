@@ -31,10 +31,12 @@ main() {
 	kernel::add_parameter "selinux=0"
     fi
 
+    if [[ $ENABLE_RESCUE -eq 1 ]]; then
+	kernel::add_parameter "systemd.unit=rescue.target" # Starts a single-user system without networking
+    fi
+
     if [[ $ENABLE_DEBUG -eq 1 ]]; then
-	#kernel::add_parameter "systemd.unit=rescue.target" # Starts a single-user system without networking
 	kernel::add_parameter "systemd.log_level=debug"
-	kernel::add_parameter "systemd.log_target=console"
     fi
 }
 
