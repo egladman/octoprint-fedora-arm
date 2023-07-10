@@ -1,7 +1,7 @@
 [Unit]
 Description=Initalize Octoprint
-After=network-online.target
-Requires=network-online.target
+After=network-online.target time-sync.target
+Requires=network-online.target time-sync.target
 ConditionPathExists=!/var/lib/octoprint/.lockfile
 
 [Service]

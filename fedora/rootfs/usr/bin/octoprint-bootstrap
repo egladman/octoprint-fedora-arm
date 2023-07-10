@@ -87,6 +87,7 @@ main() {
 	--replace
     )
 
+    # https://github.com/containers/podman/issues/14655
     is_readonly && podman_create_opts+=(--storage-opt "overlay.mount_program=/usr/bin/fuse-overlayfs")
 
     for d in $(found_devices); do
