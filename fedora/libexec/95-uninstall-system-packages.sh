@@ -13,13 +13,25 @@ main() {
     )
 
     declare -a packages=(
+	abrt
 	'anaconda*'
 	bubblewrap
 	cockpit
+	cyrus-sasl-plain
+	cyrus-sasl-gssapi
 	diffutils
 	dos2unix
 	fedora-logos
+	'perl*'
+	teamd
+	traceroute
 	nvidia-gpu-firmware
+	'qemu*'
+	quota
+	sos
+	'sssd*'
+	whois
+	yajl
     )
 
     log::info "Uninstalling the following packages: ${packages[*]}"
