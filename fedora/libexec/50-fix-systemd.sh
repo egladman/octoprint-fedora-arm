@@ -7,7 +7,9 @@ main() {
 	mkdir /var/lib/systemd
     fi
 
-    sed -i '/\/var\/lib\/systemd/d' /etc/rwtab
+    if [[ -f /etc/rwtab ]]; then
+	sed -i '/\/var\/lib\/systemd/d' /etc/rwtab
+    fi
 
     # Allows systemd-logind to start 
     if [[ ! -f /usr/lib/systemd/systemd-logind ]]; then
