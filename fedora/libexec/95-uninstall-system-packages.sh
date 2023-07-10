@@ -20,7 +20,6 @@ main() {
 	dos2unix
 	fedora-logos
 	nvidia-gpu-firmware
-	zram-generator
     )
 
     log::info "Uninstalling the following packages: ${packages[*]}"
