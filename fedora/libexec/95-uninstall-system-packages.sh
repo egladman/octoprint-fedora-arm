@@ -20,6 +20,7 @@ main() {
 	dos2unix
 	fedora-logos
 	nvidia-gpu-firmware
+	'perl*'
     )
 
     log::info "Uninstalling the following packages: ${packages[*]}"
