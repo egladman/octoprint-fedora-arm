@@ -1,3 +1,4 @@
 dirs /var/lib/containers
 dirs /etc/containers
 
+empty /var/cache/containers

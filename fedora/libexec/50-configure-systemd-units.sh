@@ -14,6 +14,11 @@ main() {
     log::info "Enabling systemd service: octoprint-bootstrap"
     systemctl --root=/ enable octoprint-bootstrap.service
 
+    # If we don't permanently disable this the contents of /var/lib/containers
+    # will deleted before we have a chance to reference it
+    log::info "Masking systemd service: podman-clean-transient"
+    systemctl --root=/ mask podman-clean-transient.service
+
     log::info "Disabling systemd service: initial-setup.service"
     systemctl --root=/ disable initial-setup.service
     # Initial-setup walks the user through the following on first boot:
