@@ -5,10 +5,12 @@ Requires=network-online.target time-sync.target
 ConditionPathExists=!/var/lib/octoprint/.lockfile
 
 [Service]
-Type=oneshot
+Type=forking
 ExecStart=/usr/bin/octoprint-bootstrap
 ExecStartPost=/usr/bin/touch /var/lib/octoprint/.lockfile
 RemainAfterExit=yes
+Restart=on-failure
+RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target
