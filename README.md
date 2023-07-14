@@ -130,3 +130,15 @@ While logged in as `octo` run:
 sudo su -
 whoami
 ```
+
+7. Is it possible to temporarily enable write access to the root filesystem?
+
+```
+sudo octoprint-readonly disable
+```
+
+Once you're done making changes remount as readonly
+
+```
+sudo octoprint-readonly enable
+```

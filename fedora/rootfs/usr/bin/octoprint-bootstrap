@@ -55,6 +55,16 @@ init() {
 }
 EOF
     fi
+
+    if [[ -d /media/removable ]] && [[ -w /media/removable ]]; then
+	printf '%s\n' "Writing to removable storage"
+	OCTOPRINT_DATA=/media/removable
+    fi
+
+    if [[ -f "/etc/octoprint/config.yaml" ]]; then
+	printf '%s\n' "Overriding octoprint config file: octoprint/config.yaml"
+	cp -f "/etc/octoprint/config.yaml" "${OCTOPRINT_DATA}/octoprint/config.yaml"
+    fi
 }
 
 main() {
@@ -83,7 +93,7 @@ main() {
 	--name="$pod_container"
 	--volume="${OCTOPRINT_DATA}:/octoprint"
 	--env ENABLE_MJPG_STREAMER=true
-	--pull=missing
+	--pull=never
 	--replace
     )
 

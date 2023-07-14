@@ -10,6 +10,7 @@ main() {
 
     declare -a dnf_opts=(
 	--assumeyes
+	--noautoremove
     )
 
     declare -a packages=(
@@ -22,6 +23,10 @@ main() {
 	nvidia-gpu-firmware
 	'perl*'
     )
+
+    if [[ $ENABLE_ZRAM -eq 0 ]]; then
+	packages+=('zram-generator*')
+    fi
 
     log::info "Uninstalling the following packages: ${packages[*]}"
     dnf remove "${dnf_opts[@]}" "${packages[@]}"
