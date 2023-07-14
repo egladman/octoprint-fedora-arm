@@ -111,7 +111,7 @@ main() {
     podman create "${podman_create_opts[@]}" "$repository"
 
     local systemd_dir
-    systemd_dir="/usr/lib/systemd/system"
+    systemd_dir="/run/systemd/system"
 
     printf '%s\n' "Generating podman systemd services in directory: $systemd_dir"
     pushd "$systemd_dir"
