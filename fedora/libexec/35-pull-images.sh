@@ -18,8 +18,8 @@ main() {
 	cat /etc/octoprint-release
     fi
 
-    mkdir -p /var/lib/containers2
-    mv -f /var/lib/containers/storage /var/lib/containers2/storage
+    mv -f /var/lib/containers /var/lib/containers2
+    mkdir -p /var/lib/containers
 }
 
 init

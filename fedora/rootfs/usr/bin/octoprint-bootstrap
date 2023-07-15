@@ -78,7 +78,7 @@ main() {
     podman info
 
     # I know this is gross. Sideload container for podman can see it
-    mount --bind /var/lib/containers2/storage /var/lib/containers/storage
+    mount --bind /var/lib/containers2 /var/lib/containers
 
     declare -a podman_pod_opts
     podman_pod_opts=(
