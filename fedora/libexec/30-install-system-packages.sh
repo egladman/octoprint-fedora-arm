@@ -18,6 +18,7 @@ main() {
 	iputils
 	podman
 	openssh-server
+	vim-minimal
     )
 
     if [[ $ENABLE_READONLY -eq 1 ]]; then
