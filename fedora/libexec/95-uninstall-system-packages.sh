@@ -14,6 +14,7 @@ main() {
     )
 
     declare -a packages=(
+	'abrt*'
 	'anaconda*'
 	bubblewrap
 	cockpit

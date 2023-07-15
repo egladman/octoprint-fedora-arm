@@ -26,7 +26,7 @@ main() {
     podman save --output "/etc/octoprint/containers/archives/${EPOCHSECONDS:?}.tar" "$uri" || log::warn "Failed to export: $uri"
 
     # Nuke everything
-    podman system reset
+    podman system --force reset
 }
 
 init

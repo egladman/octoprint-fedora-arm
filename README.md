@@ -11,6 +11,11 @@ An immutable [Octoprint](https://octoprint.org/) ARM image with an emphasis on s
 - Device Autodiscovery
   - On boot all relevant [character devices](https://en.wikipedia.org/wiki/Device_file) (i.e, serial ports, cameras) will be made accessible to Octoprint
 
+## Hardware Requirements
+
+- Minimum of 4GB RAM
+  - Everything lives in RAM. This includes the root filesystem and container hence it's heavier than traditional octoprint install.
+
 ## Persistence
 
 1. Format a usb flashdrive with the following settings:

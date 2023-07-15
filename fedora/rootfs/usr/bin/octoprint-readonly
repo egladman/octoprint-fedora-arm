@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# Usage: octoprint-readonly
+#        octoprint-readonly enable
+#        octoprint-readonly disable
+
 rootfs::is_readonly() {
     declare -a chunks
     while read -r line; do
@@ -22,25 +26,23 @@ rootfs::remount() {
     mount -o "${1:?},remount" /
 }
 
-main() {    
+main() {
+    local state
     case "$1" in
 	""|enable)
 	    rootfs::is_readonly || rootfs::remount ro
+	    state="writable"
 	    ;;     
 	disable)
 	    rootfs::is_readonly && rootfs::remount rw
+	    state="readonly"
 	    ;;
 	*)
 	    exit 1
 	    ;;
     esac
 
-    local state="writable"
-    if rootfs::is_readonly; then
-	state="readonly"
-    fi
-
-    printf '%s\n' "Rootfs is $state"
+    printf 'Filesystem is %s\n' "$state"
 }
 
 main "$@"
