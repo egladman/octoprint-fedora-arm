@@ -7,6 +7,7 @@ set -o errexit -o pipefail
 OCTOPRINT_AUTO_UPDATE=${OCTOPRINT_AUTO_UPDATE:-1} # `0` disables auto-updating
 OCTOPRINT_VERSION="${OCTOPRINT_VERSION:-latest}"  # `latest` stable, `edge`, `canary`, `bleeding`
 OCTOPRINT_DATA="${OCTOPRINT_DATA:-/var/lib/octoprint}"
+OCTOPRINT_LOCK="${OCTOPRINT_DATA}/.lockfile"
 OCTOPRINT_PORT="${OCTOPRINT_PORT:-80}"
 OCTOPRINT_REGISTRY="${OCTOPRINT_REGISTRY:-docker.io/octoprint/}"
 
@@ -32,10 +33,6 @@ load_images() {
     done
 }
 
-which_lockfile() {
-    printf '%s\n' "${OCTOPRINT_DATA:?}/.lockfile"
-}
-
 is_readonly() {
     declare -a chunks
     while read -r line; do
@@ -53,16 +50,16 @@ is_readonly() {
 }
 
 init() {
+    if [[ -f "$OCTOPRINT_LOCK" ]]; then
+	printf '%s\n' "Nothing to do, all conditions met. Delete the following file to force the operation: $OCTOPRINT_LOCK"
+	exit 0
+    fi
+
+    # We never want to write the lockfile to removable storage. So it's fine we're overriding
+    # the data dir while the lockfile still references the previous value
     if [[ -d /media/removable ]] && [[ -w /media/removable ]]; then
 	printf '%s\n' "Writing to removable storage"
 	OCTOPRINT_DATA=/media/removable
-    fi
-
-    local lock
-    lock="$(which_lockfile)"
-    if [[ -f "$lock" ]]; then
-	printf '%s\n' "Nothing to do, all conditions met. Delete the following file to force the operation: $lock"
-	exit 0
     fi
 
     for p in "$OCTOPRINT_DATA"; do
@@ -152,12 +149,10 @@ main() {
 	   "$pod_name"
     popd
 
-    local lock
-    lock="$(which_lockfile)"
-    printf '%s\n' "Creating lockfile: $lock"
-    >"$lock"
+    printf '%s\n' "Creating lockfile: $OCTOPRINT_LOCK"
+    >"$OCTOPRINT_LOCK"
 
-    systemctl enable pod-octoprint.service
+    systemctl start pod-octoprint.service
     
     printf '%s\n' "Goodbye."
 }

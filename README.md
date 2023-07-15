@@ -1,10 +1,11 @@
 # octoprint-fedora-arm
 
-An immutable [Octoprint](https://octoprint.org/) ARM image with an emphasis on stability. Set it and forget it. This project was inspired by [OctoPi](https://github.com/guysoft/OctoPi).
+An immutable [Octoprint](https://octoprint.org/) ARM image with an emphasis on resiliency. Set it and forget it. This project was inspired by [OctoPi](https://github.com/guysoft/OctoPi), but shares zero code.
 
 ## Features
 
 - Read-only filesystem
+  - Flash storage is susceptible to data corruption on power loss, and heavy writes. We're able to entirely circumvent this issue by mounting the filesystem as read-only and leveraging a tmpfs that lives in RAM.
 - Container-based
 - Application auto-updates
   - Disabled by default
@@ -13,8 +14,16 @@ An immutable [Octoprint](https://octoprint.org/) ARM image with an emphasis on s
 
 ## Hardware Requirements
 
-- Minimum of 4GB RAM
-  - Everything lives in RAM. This includes the root filesystem and container hence it's heavier than traditional octoprint install.
+
+### RAM
+
+Everything lives in RAM. This includes the root filesystem and container hence it's heavier than a traditional octoprint install.
+
+- minimum: 4GB
+
+### Storage
+
+- minimum: 8GB
 
 ## Persistence
 
@@ -43,8 +52,10 @@ make boards/arm64/v8/generic
 
 ### xzcat
 ```
-xzcat Octoprint-Fedora-38-1.6.aarch64.raw.xz| dd of=/dev/XXX oflag=direct bs=4M status=progress && sync
+xzcat Octoprint-Fedora-38-1.6.aarch64.raw.xz | dd iflag=fullblock of=/dev/XXX oflag=direct bs=4M status=progress && sync
 ```
+
+**Note:** Depending on your setup you might need to prefix `dd` with `sudo` (i.e, `xzcat ... | sudo dd ...`).
 
 ### [arm-image-installer](https://packages.fedoraproject.org/pkgs/arm-image-installer/arm-image-installer/)
 ```
@@ -65,6 +76,13 @@ ssh octo@octoprint
 sudo octoprint-readonly disable
 passwd octo
 sudo octoprint-readonly enable
+```
+
+## Packaging
+
+```
+make ENABLE_DEBUG=0 ENABLE_RELEASE=1 boards/arm64/v8/generic
+(cd build/dist; sha512sum *) > build/dist/CHECKSUM)
 ```
 
 ## Development
@@ -118,24 +136,7 @@ sudo losetup -D build/fedora.raw
 sudo rm -irf build
 ```
 
-4. Something is messed up, how do I blow away the existing container?
-
-Delete the lockfile, then on next boot the container will reinitialize
-
-```
-rm -if /home/octo/octoprint/.lockfile
-```
-
-5. I want to reset everything, how can I do that?
-
-
-Delete the entire octoprint directory. On next boot everything will be cleared.
-
-```
-rm -irf /home/octo/octoprint
-```
-
-6. How do a run a command as `root` if a password isn't set for it?
+4. How do a run a command as `root` if a password isn't set for it?
 
 While logged in as `octo` run:
 
@@ -144,7 +145,7 @@ sudo su -
 whoami
 ```
 
-7. Is it possible to temporarily enable write access to the root filesystem?
+5. Is it possible to temporarily enable write access to the root filesystem?
 
 ```
 sudo octoprint-readonly disable
