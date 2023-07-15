@@ -1,18 +1,24 @@
 # octoprint-fedora-arm
 
-A purpose-built Octoprint ARM image with an emphasis on stability, and ease of use. This project was inspired by [OctoPi](https://github.com/guysoft/OctoPi).
+An immutable [Octoprint](https://octoprint.org/) ARM image with an emphasis on stability. Set it and forget it. This project was inspired by [OctoPi](https://github.com/guysoft/OctoPi).
 
 ## Features
 
 - Read-only filesystem
 - Container-based
 - Application auto-updates
+  - Disabled by default
 - Device Autodiscovery
   - On boot all relevant [character devices](https://en.wikipedia.org/wiki/Device_file) (i.e, serial ports, cameras) will be made accessible to Octoprint
 
-## Considerations
+## Persistence
 
-In an effort to reduce the overall image size, the container image is not include shipped image. On first boot it's downloaded.
+1. Format a usb flashdrive with the following settings:
+- label: `OCTOPRINT`
+
+2. While off insert the usb flashdrive into the device.
+
+3. Power on the device. Octoprint config settings will be written to the flashdrive.
 
 ## Build
 
@@ -51,7 +57,9 @@ ssh octo@octoprint
 2. Change the default password for user `octo`
 
 ```
+sudo octoprint-readonly disable
 passwd octo
+sudo octoprint-readonly enable
 ```
 
 ## Development

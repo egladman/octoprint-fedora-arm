@@ -17,10 +17,7 @@ main() {
 	'anaconda*'
 	bubblewrap
 	cockpit
-	diffutils
-	dos2unix
 	fedora-logos
-	nvidia-gpu-firmware
 	'perl*'
     )
 

@@ -19,8 +19,8 @@ main() {
     log::info "Masking systemd service: podman-clean-transient"
     systemctl --root=/ mask podman-clean-transient.service
 
-    log::info "Disabling systemd service: initial-setup.service"
-    systemctl --root=/ disable initial-setup.service
+    log::info "Masking systemd service: initial-setup.service"
+    systemctl --root=/ mask initial-setup.service
     # Initial-setup walks the user through the following on first boot:
     #  - Language Settings
     #  - Date & Time
