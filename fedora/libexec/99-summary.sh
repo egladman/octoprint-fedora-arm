@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -o errexit -o pipefail
+
 main() {
     log::info "Size of path: /var/lib/containers"
     df -h /var/lib/containers
@@ -11,4 +13,5 @@ main() {
     systemctl --root=/ list-unit-files --type=service --state=enabled
 }
 
+init
 main "$@"

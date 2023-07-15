@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -o errexit -o pipefail
+
 # Logic was pulled directly from https://pagure.io/arm-image-installer/tree/main
 kernel::add_parameter () {
     local param="${1:?}"

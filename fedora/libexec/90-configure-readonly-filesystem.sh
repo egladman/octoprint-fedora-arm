@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -o errexit -o pipefail
+
 main() {
     log::info "Setting filesystem to read only."
 
