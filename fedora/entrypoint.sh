@@ -32,6 +32,10 @@ main() {
     fi
 
     for f in ./libexec/*.sh; do
+	if [[ ! -x "$f" ]]; then
+	    log::fatal "File is not executable: $f"
+	fi
+
 	log::info "Executing: $f"
 	"$f"
     done
