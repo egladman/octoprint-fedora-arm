@@ -1,4 +1,3 @@
-dirs /var/lib/containers2
 dirs /etc/containers
 
 empty /var/lib/containers

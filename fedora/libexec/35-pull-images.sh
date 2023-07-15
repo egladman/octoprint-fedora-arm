@@ -18,8 +18,15 @@ main() {
 	cat /etc/octoprint-release
     fi
 
-    mv -f /var/lib/containers /var/lib/containers2
-    mkdir -p /var/lib/containers
+    if [[ ! -d /etc/octoprint/containers/archives ]]; then
+	mkdir -p /etc/octoprint/containers/archives
+    fi
+
+    # EPOCHSECONDS is a bash builtin introduced in Bash 5.0
+    podman save --output "/etc/octoprint/containers/archives/${EPOCHSECONDS:?}.tar" "$uri" || log::warn "Failed to export: $uri"
+
+    # Nuke everything
+    podman system reset
 }
 
 init

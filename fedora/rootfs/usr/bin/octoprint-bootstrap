@@ -21,6 +21,13 @@ found_devices() {
     printf '%s\n' "$@"
 }
 
+load_images() {
+    local archives_dir=/etc/octoprint/containers/archives
+
+    for i in ${archives_dir}/*; do
+	podman load < "$i"
+    done
+}
 
 is_readonly() {
     declare -a chunks
@@ -72,13 +79,12 @@ main() {
     pod_container="web"
     pod_name="octoprint"
 
-    # The first time podman is called after a reboot it attempts it
-    # manage state, but this breaks how we're sideloading images
+    # The first time podman is called after a reboot it cleans up state. The contents in
+    # /var/lib/containers gets written over. So we must resort to side loading the
+    # container archives.
     #   podman system refresh
     podman info
-
-    # I know this is gross. Sideload container for podman can see it
-    mount --bind /var/lib/containers2 /var/lib/containers
+    load_images
 
     declare -a podman_pod_opts
     podman_pod_opts=(

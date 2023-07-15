@@ -1,13 +1,17 @@
 SHELL = bash -o errexit -o pipefail
 
-export ENABLE_ROOT ?= 1
-export ENABLE_READONLY ?= 1
-export ENABLE_RELEASE ?= 0
-export ENABLE_DEBUG ?= 1
-export ENABLE_AUTOUPDATES ?= 0
+export ENABLE_ROOT ?= 0        # Configure root user
+export ENABLE_READONLY ?= 1    # Readonly filesystem
+export ENABLE_RELEASE ?= 0     # Relates to packaging, enables max compression
+export ENABLE_DEBUG ?= 1       # Verbose logging
+export ENABLE_AUTOUPDATES ?= 0 # Auto-updates only make sense if the filesystem is writable
 export ENABLE_SELINUX ?= 0
 export ENABLE_RESCUE ?= 0
 export ENABLE_ZRAM ?= 0
+
+# Some of the design decisions below no longer make sense. Early on I was
+# chroot+qemu to manipulate the rootfs, this has since been replaced with
+# systemd-nspawn.
 
 QEMU_DIR ?= $(abspath qemu)
 BUILD_DIR ?= $(abspath build)
