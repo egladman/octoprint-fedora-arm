@@ -21,12 +21,19 @@ found_devices() {
     printf '%s\n' "$@"
 }
 
+# TODO: If the image already exists (i.e, retry attempt) the function will force reload the
+# docker archive. This is clunkey. Add logic to return early if the image has been previously
+# loaded.
 load_images() {
     local archives_dir=/etc/octoprint/containers/archives
 
     for i in ${archives_dir}/*; do
 	podman load < "$i"
     done
+}
+
+which_lockfile() {
+    printf '%s\n' "${OCTOPRINT_DATA:?}/.lockfile"
 }
 
 is_readonly() {
@@ -46,6 +53,18 @@ is_readonly() {
 }
 
 init() {
+    if [[ -d /media/removable ]] && [[ -w /media/removable ]]; then
+	printf '%s\n' "Writing to removable storage"
+	OCTOPRINT_DATA=/media/removable
+    fi
+
+    local lock
+    lock="$(which_lockfile)"
+    if [[ -f "$lock" ]]; then
+	printf '%s\n' "Nothing to do, all conditions met. Delete the following file to force the operation: $lock"
+	exit 0
+    fi
+
     for p in "$OCTOPRINT_DATA"; do
 	if [[ ! -d "$p" ]]; then
 	    printf '%s\n' "Creating directory: $p"
@@ -61,11 +80,6 @@ init() {
     "default": [{"type": "insecureAcceptAnything"}]
 }
 EOF
-    fi
-
-    if [[ -d /media/removable ]] && [[ -w /media/removable ]]; then
-	printf '%s\n' "Writing to removable storage"
-	OCTOPRINT_DATA=/media/removable
     fi
 
     if [[ -f "/etc/octoprint/config.yaml" ]]; then
@@ -138,8 +152,12 @@ main() {
 	   "$pod_name"
     popd
 
-    systemctl daemon-reload
-    systemctl --now enable pod-octoprint.service
+    local lock
+    lock="$(which_lockfile)"
+    printf '%s\n' "Creating lockfile: $lock"
+    >"$lock"
+
+    systemctl enable pod-octoprint.service
     
     printf '%s\n' "Goodbye."
 }

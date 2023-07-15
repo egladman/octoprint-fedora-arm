@@ -2,15 +2,13 @@
 Description=Initalize Octoprint
 After=network-online.target nss-lookup.target time-sync.target
 Requires=network-online.target nss-lookup.target time-sync.target
-ConditionPathExists=!/var/lib/octoprint/.lockfile
 
 [Service]
 Type=forking
 ExecStart=/usr/bin/octoprint-bootstrap
-ExecStartPost=/usr/bin/touch /var/lib/octoprint/.lockfile
 RemainAfterExit=yes
 Restart=on-failure
-RestartSec=10s
+RestartSec=15s
 
 [Install]
 WantedBy=multi-user.target
