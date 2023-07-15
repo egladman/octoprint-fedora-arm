@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Utility to quickly remount the rootfs with read/write capability 
+
 # Usage: octoprint-readonly
 #        octoprint-readonly enable
 #        octoprint-readonly disable
@@ -31,11 +33,11 @@ main() {
     case "$1" in
 	""|enable)
 	    rootfs::is_readonly || rootfs::remount ro
-	    state="writable"
+	    state="readonly"
 	    ;;     
 	disable)
 	    rootfs::is_readonly && rootfs::remount rw
-	    state="readonly"
+	    state="writable"
 	    ;;
 	*)
 	    exit 1

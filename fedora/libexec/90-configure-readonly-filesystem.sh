@@ -11,10 +11,12 @@ main() {
     log::info "Configure writable directories."
     cp -rf ./rootfs/etc/rwtab.d/. /etc/rwtab.d/
 
-    # By the time autorelabeling runs the rootfs is readonly. Hence
-    # it will fail. So lets pretend it already ran
-    log::info "Creating file: /.autorelablel"
-    >"/.autorelabel"
+    if [[ $ENABLE_READONLY -eq 0 ]]; then
+	# By the time autorelabeling runs the rootfs is readonly. Hence
+	# it will fail. So lets pretend it already ran
+	log::info "Creating file: /.autorelablel"
+	>"/.autorelabel"
+    fi
 }
 
 init

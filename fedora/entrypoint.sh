@@ -15,12 +15,6 @@ init() {
 
 main() {
     export -f init
-
-    # This is gross
-    util::is_mounted /proc/cpuinfo || {
-	log::info "Spoofing architecture. Bind mounting fake cpuinfo."
-	mount --bind rootfs/proc/cpuinfo /proc/cpuinfo
-    }
     
     # Useful for manually running scripts while chrooted
     if [[ $# -gt 0 ]]; then
