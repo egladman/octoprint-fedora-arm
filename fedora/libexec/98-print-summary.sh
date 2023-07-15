@@ -10,10 +10,10 @@ main() {
     systemctl --root=/ list-unit-files --type=service --state=enabled
 
     log::info "Size of path: /var/lib/containers"
-    du -sh /var/lib/containers
+    du -sh /var/lib/containers || :
 
     log::info "List images"
-    podman image ls
+    podman image ls || :
 }
 
 init
