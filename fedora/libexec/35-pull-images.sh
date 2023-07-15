@@ -17,6 +17,8 @@ main() {
     if [[ -f /etc/octoprint-release ]]; then
 	cat /etc/octoprint-release
     fi
+
+    mv -f /var/lib/containers /var/lib/containers2
 }
 
 init

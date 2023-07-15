@@ -72,6 +72,14 @@ main() {
     pod_container="web"
     pod_name="octoprint"
 
+    # The first time podman is called after a reboot it attempts it
+    # manage state, but this breaks how we're sideloading images
+    #   podman system refresh
+    podman info
+
+    # I know this is gross. Sideload container for podman can see it
+    mount --bind /etc/containers2 /var/lib/containers
+
     declare -a podman_pod_opts
     podman_pod_opts=(
 	--name="$pod_name"
