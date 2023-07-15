@@ -4,7 +4,7 @@ set -o errexit -o pipefail
 
 main() {
     log::info "Size of path: /var/lib/containers"
-    df -h /var/lib/containers
+    du -sh /var/lib/containers
 
     log::info "Installed packages"
     dnf list installed
