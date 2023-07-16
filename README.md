@@ -156,3 +156,9 @@ Once you're done making changes remount as readonly
 ```
 sudo octoprint-readonly enable
 ```
+
+6. What's the stream/snapshot webcam URLs?
+- stream: `/webcam/?action=stream`
+- snapshot: `http://localhost:8080/?action=snapshot`
+
+[source](https://community.octoprint.org/t/what-are-the-default-webcam-urls-in-octoprint-on-octopi/208)
