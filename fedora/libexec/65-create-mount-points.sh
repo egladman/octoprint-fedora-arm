@@ -3,7 +3,7 @@
 set -o errexit -o pipefail
 
 main() {
-   util::mkdir /media/removable
+    util::mkdir /media/removable
 }
 
 init

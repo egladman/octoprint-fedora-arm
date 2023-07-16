@@ -4,7 +4,6 @@ set -o errexit -o pipefail
 
 # Dynamically creates pod-octoprint.service
 
-OCTOPRINT_AUTO_UPDATE=${OCTOPRINT_AUTO_UPDATE:-1} # `0` disables auto-updating
 OCTOPRINT_VERSION="${OCTOPRINT_VERSION:-latest}"  # `latest` stable, `edge`, `canary`, `bleeding`
 OCTOPRINT_DATA="${OCTOPRINT_DATA:-/var/lib/octoprint}"
 OCTOPRINT_LOCK="${OCTOPRINT_DATA}/.lockfile"
@@ -104,10 +103,10 @@ main() {
 	--replace
     )
 
-    if [[ $OCTOPRINT_AUTO_UPDATE -eq 1 ]]; then
+    systemctl is-enabled -q podman-auto-update.service && {
 	printf '%s\n' "Enabling auto-updating"
 	podman_pod_opts+=(--label io.containers.autoupdate=registry)
-    fi
+    }
 
     printf '%s\n' "Creating pod: $pod_name"
     podman pod create "${podman_pod_opts[@]}"
